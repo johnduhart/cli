@@ -1,17 +1,13 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
+
 namespace Microsoft.Extensions.DependencyModel
 {
-    public class Dependency
+    public class LibraryAssetDependency
     {
-        public Dependency(string assemblyName, string packageName, string version, string checksum)
-        {
-            AssemblyName = assemblyName;
-            PackageName = packageName;
-            Version = version;
-            Checksum = checksum;
-        }
+        public string LibraryType { get; }
 
         public string AssemblyName { get; }
 
@@ -19,6 +15,10 @@ namespace Microsoft.Extensions.DependencyModel
 
         public string Version { get; }
 
-        public string Checksum { get; }
+        public string Type { get; }
+
+        public string Hash { get; }
+
+        public string Path { get; }
     }
 }

@@ -16,12 +16,12 @@ namespace Microsoft.Extensions.DependencyModel
         {
         }
 
-        public DependencyContext(IList<Dependency> dependencies)
+        public DependencyContext(IList<LibraryAssetDependency> dependencies)
         {
             Dependencies = dependencies;
         }
 
-        public IList<Dependency> Dependencies { get; }
+        public IList<LibraryAssetDependency> Dependencies { get; }
 
         public static DependencyContext Load()
         {
