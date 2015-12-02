@@ -7,6 +7,17 @@ namespace Microsoft.Extensions.DependencyModel
 {
     public class LibraryAssetDependency
     {
+        public LibraryAssetDependency(string libraryType, string assemblyName, string packageName, string version, string assetType, string hash, string path)
+        {
+            LibraryType = libraryType;
+            AssemblyName = assemblyName;
+            PackageName = packageName;
+            Version = version;
+            AssetType = assetType;
+            Hash = hash;
+            Path = path;
+        }
+
         public string LibraryType { get; }
 
         public string AssemblyName { get; }
@@ -15,7 +26,7 @@ namespace Microsoft.Extensions.DependencyModel
 
         public string Version { get; }
 
-        public string Type { get; }
+        public string AssetType { get; }
 
         public string Hash { get; }
 
