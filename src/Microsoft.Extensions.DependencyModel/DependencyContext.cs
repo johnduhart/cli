@@ -2,9 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.IO;
-using System.Collections.Generic;
 using System.Reflection;
-using System;
 using Microsoft.Extensions.DependencyModel.IO;
 
 namespace Microsoft.Extensions.DependencyModel
@@ -20,8 +18,8 @@ namespace Microsoft.Extensions.DependencyModel
         }
 
         public Library[] CompileLibraries { get; }
-        public Library[] RuntimeLibraries { get; }
 
+        public Library[] RuntimeLibraries { get; }
 
         public static DependencyContext Load()
         {
