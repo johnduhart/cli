@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.Extensions.DependencyModel
 {
-    public class Dependency
+    public struct Dependency
     {
         public Dependency(string name, string version)
         {

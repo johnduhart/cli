@@ -39,6 +39,8 @@ namespace Microsoft.Extensions.DependencyModel.IO
             }
         }
 
+        private bool IsRuntimeTarget(string name) => name.Contains(VersionSeperator);
+
         private DependencyContext Read(JObject root)
         {
             var libraryStubs = ReadLibraryStubs((JObject) root[LibrariesPropertyName]);
@@ -48,17 +50,14 @@ namespace Microsoft.Extensions.DependencyModel.IO
             var compileTargetObject = (JObject)targetsObject.First(t => !IsRuntimeTarget(t.Key)).Value;
 
             return new DependencyContext(
-                ReadLibraries(runtimeTargetObject, false, libraryStubs),
-                ReadLibraries(compileTargetObject, true, libraryStubs)
+                ReadLibraries(runtimeTargetObject, true, libraryStubs),
+                ReadLibraries(compileTargetObject, false, libraryStubs)
                 );
         }
 
-        private bool IsRuntimeTarget(string name) => name.Contains(VersionSeperator);
-
-        private Library[] ReadLibraries(JObject librariesObject, bool runtime,
-            Dictionary<string, LibraryStub> libraryStubs)
+        private Library[] ReadLibraries(JObject librariesObject, bool runtime, Dictionary<string, LibraryStub> libraryStubs)
         {
-            return librariesObject.Properties().Select(property => ReadLibrary(property, true, libraryStubs)).ToArray();
+            return librariesObject.Properties().Select(property => ReadLibrary(property, runtime, libraryStubs)).ToArray();
         }
 
         private Library ReadLibrary(JProperty property, bool runtime, Dictionary<string, LibraryStub> libraryStubs)
@@ -78,14 +77,34 @@ namespace Microsoft.Extensions.DependencyModel.IO
 
             var libraryObject = (JObject) property.Value;
 
-            var dependencies = ((JObject) libraryObject[DependenciesPropertyName])
-                ?.Properties().Select(p => new Dependency(p.Name, (string) p.Value)).ToArray() ??
-                               Array.Empty<Dependency>();
-
-            var assemblies = ((JObject) libraryObject[runtime ? RunTimeAssembliesKey : CompileTimeAssembliesKey])
-                ?.Properties().Select(p => p.Name).ToArray() ?? Array.Empty<string>();
+            var dependencies = ReadDependencies(libraryObject);
+            var assemblies = ReadAssemblies(libraryObject, runtime);
 
             return new Library(stub.Type, name, version, stub.Hash, assemblies, dependencies, stub.Serviceable);
+        }
+
+        private static string[] ReadAssemblies(JObject libraryObject, bool runtime)
+        {
+            var assembliesObject = (JObject) libraryObject[runtime ? RunTimeAssembliesKey : CompileTimeAssembliesKey];
+
+            if (assembliesObject == null)
+            {
+                return Array.Empty<string>();
+            }
+
+            return assembliesObject.Properties().Select(p => p.Name).ToArray();
+        }
+
+        private static Dependency[] ReadDependencies(JObject libraryObject)
+        {
+            var dependenciesObject = ((JObject) libraryObject[DependenciesPropertyName]);
+
+            if (dependenciesObject == null)
+            {
+                return Array.Empty<Dependency>();
+            }
+
+            return dependenciesObject.Properties().Select(p => new Dependency(p.Name, (string) p.Value)).ToArray();
         }
 
         private Dictionary<string, LibraryStub> ReadLibraryStubs(JObject librariesObject)
