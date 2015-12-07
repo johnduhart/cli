@@ -27,7 +27,7 @@ namespace Microsoft.Extensions.DependencyModel
 
         public string Hash { get; }
 
-        public string[] Assemblies { get; }
+        public IReadOnlyList<string> Assemblies { get; }
 
         public IReadOnlyList<Dependency> Dependencies { get; }
 

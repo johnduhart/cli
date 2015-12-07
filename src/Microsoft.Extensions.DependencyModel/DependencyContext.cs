@@ -3,6 +3,7 @@
 
 using System.IO;
 using System.Reflection;
+using System.Collections.Generic;
 using Microsoft.Extensions.DependencyModel.IO;
 
 namespace Microsoft.Extensions.DependencyModel
@@ -17,9 +18,9 @@ namespace Microsoft.Extensions.DependencyModel
             RuntimeLibraries = runtimeLibraries;
         }
 
-        public Library[] CompileLibraries { get; }
+        public IReadOnlyList<Library> CompileLibraries { get; }
 
-        public Library[] RuntimeLibraries { get; }
+        public IReadOnlyList<Library> RuntimeLibraries { get; }
 
         public static DependencyContext Load()
         {
