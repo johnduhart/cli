@@ -5,38 +5,34 @@ using System.IO;
 using System.Collections.Generic;
 using System.Reflection;
 using System;
+using Microsoft.Extensions.DependencyModel.IO;
 
 namespace Microsoft.Extensions.DependencyModel
 {
     public class DependencyContext
     {
-        public IList<Library> RuntimeLibraries { get; }
-        public IList<Library> CompilationLibraries { get; }
-
         private const string DepsExtension = ".deps";
 
-        public DependencyContext()
+        public DependencyContext(Target[] targets)
         {
+            Targets = targets;
         }
 
-        public DependencyContext(IList<Library> runtimeLibraries, IList<Library> compilationLibraries)
-        {
-            RuntimeLibraries = runtimeLibraries;
-            CompilationLibraries = compilationLibraries;
-        }
+        public Target[] Targets { get; private set; }
 
         public static DependencyContext Load()
         {
             Assembly entryAssembly = null;
-            using (var fileStream = File.OpenRead(entryAssembly.Location))
+            var path = Path.Combine(entryAssembly.Location, Path.GetFileNameWithoutExtension(entryAssembly.Location) + DepsExtension);
+            using (var fileStream = File.OpenRead(path))
             {
                 return Load(fileStream);
             }
         }
 
-        private static DependencyContext Load(Stream stream)
+        public static DependencyContext Load(Stream stream)
         {
-            return new DependencyContext();
+            return new DependencyContextReader().Read(stream);
         }
     }
 }
