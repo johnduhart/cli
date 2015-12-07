@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 
 namespace Microsoft.Extensions.DependencyModel
 {
@@ -28,7 +29,7 @@ namespace Microsoft.Extensions.DependencyModel
 
         public string[] Assemblies { get; }
 
-        public Dependency[] Dependencies { get; }
+        public IReadOnlyList<Dependency> Dependencies { get; }
 
         public bool Serviceable { get; }
     }
