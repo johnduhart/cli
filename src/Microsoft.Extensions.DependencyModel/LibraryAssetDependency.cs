@@ -5,31 +5,30 @@ using System;
 
 namespace Microsoft.Extensions.DependencyModel
 {
-    public class LibraryAssetDependency
+    public class Dependency
     {
-        public LibraryAssetDependency(string libraryType, string assemblyName, string packageName, string version, string assetType, string hash, string path)
+        public Dependency(string name, string version)
         {
-            LibraryType = libraryType;
-            AssemblyName = assemblyName;
-            PackageName = packageName;
+            Name = name;
             Version = version;
-            AssetType = assetType;
-            Hash = hash;
-            Path = path;
         }
 
-        public string LibraryType { get; }
+        public string Name { get; }
+        public string Version { get; }
+    }
 
-        public string AssemblyName { get; }
+    public class Library
+    {
+        public string LibraryType { get; }
 
         public string PackageName { get; }
 
         public string Version { get; }
 
-        public string AssetType { get; }
-
         public string Hash { get; }
 
-        public string Path { get; }
+        public string[] Assemblies { get; }
+
+        public Dependency[] Dependencies { get; }
     }
 }

@@ -8,6 +8,9 @@
   "compilationOptions": {
     "warningsAsErrors": true
   },
+  "dependencies": {
+    "Newtonsoft.Json": "7.0.1"
+  },
   "frameworks": {
     "dnxcore50": {
       "dependencies": {
@@ -16,7 +19,7 @@
         "System.Reflection": "4.1.0-rc2-*",
         "System.Resources.ResourceManager": "4.0.1-rc2-*",
         "System.Runtime": "4.0.21-rc2-*",
-        "System.Runtime.Extensions": "4.0.11-rc2-*"
+        "System.Runtime.Extensions": "4.0.11-rc2-*",
       }
     }
   },

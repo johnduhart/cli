@@ -10,18 +10,20 @@ namespace Microsoft.Extensions.DependencyModel
 {
     public class DependencyContext
     {
+        public IList<Library> RuntimeLibraries { get; }
+        public IList<Library> CompilationLibraries { get; }
+
         private const string DepsExtension = ".deps";
 
         public DependencyContext()
         {
         }
 
-        public DependencyContext(IList<LibraryAssetDependency> dependencies)
+        public DependencyContext(IList<Library> runtimeLibraries, IList<Library> compilationLibraries)
         {
-            Dependencies = dependencies;
+            RuntimeLibraries = runtimeLibraries;
+            CompilationLibraries = compilationLibraries;
         }
-
-        public IList<LibraryAssetDependency> Dependencies { get; }
 
         public static DependencyContext Load()
         {
