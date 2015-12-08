@@ -538,7 +538,9 @@ namespace Microsoft.DotNet.Tools.Compiler
 
             var dependencyContext = DependencyContextBuilder.FromLibraryExporter(
                 exporter, runtimeContext.TargetFramework.DotNetFrameworkName, runtimeContext.RuntimeIdentifier);
-            new DependencyContextWriter().Write(dependencyContext, File.Create(Path.Combine(outputPath, runtimeContext.ProjectFile.Name + ".deps.js")));
+
+            var writer = new DependencyContextWriter();
+            writer.Write(dependencyContext, File.Create(Path.Combine(outputPath, runtimeContext.ProjectFile.Name + ".deps.json")));
 
             // Copy the host in
             CopyHost(Path.Combine(outputPath, runtimeContext.ProjectFile.Name + Constants.ExeSuffix));
