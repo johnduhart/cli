@@ -536,7 +536,7 @@ namespace Microsoft.DotNet.Tools.Compiler
 
             File.WriteAllLines(Path.Combine(outputPath, runtimeContext.ProjectFile.Name + ".deps"), lines);
 
-            var dependencyContext = ProjectContextConverter.ToDependencyContext(
+            var dependencyContext = DependencyContextBuilder.FromLibraryExporter(
                 exporter, runtimeContext.TargetFramework.DotNetFrameworkName, runtimeContext.RuntimeIdentifier);
             new DependencyContextWriter().Write(dependencyContext, File.Create(Path.Combine(outputPath, runtimeContext.ProjectFile.Name + ".deps.js")));
 

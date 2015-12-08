@@ -7,9 +7,9 @@ using Microsoft.DotNet.ProjectModel.Compilation;
 
 namespace Microsoft.Extensions.DependencyModel
 {
-    public static class ProjectContextConverter
+    public static class DependencyContextBuilder
     {
-        public static  DependencyContext ToDependencyContext(LibraryExporter libraryExporter, string target, string runtime)
+        public static  DependencyContext FromLibraryExporter(LibraryExporter libraryExporter, string target, string runtime)
         {
             var dependencies = libraryExporter.GetDependencies();
 

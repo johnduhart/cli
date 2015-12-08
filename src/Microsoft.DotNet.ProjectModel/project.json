@@ -21,6 +21,10 @@
         "Microsoft.Extensions.HashCodeCombiner.Sources": {
             "type": "build",
             "version": "1.0.0-*"
+        },
+        "Microsoft.Extensions.DependencyModel": {
+          "type": "build",
+          "version": "1.0.0-*"
         }
     },
 
