@@ -4,7 +4,6 @@
 using System.IO;
 using System.Reflection;
 using System.Collections.Generic;
-using Microsoft.Extensions.DependencyModel.IO;
 
 namespace Microsoft.Extensions.DependencyModel
 {
@@ -31,7 +30,8 @@ namespace Microsoft.Extensions.DependencyModel
 
         public static DependencyContext Load()
         {
-            Assembly entryAssembly = null;
+            Assembly entryAssembly = (Assembly)typeof(Assembly).GetTypeInfo().GetDeclaredMethod("GetEntryAssembly").Invoke(null, null);
+
             var path = Path.Combine(entryAssembly.Location, Path.GetFileNameWithoutExtension(entryAssembly.Location) + DepsExtension);
             using (var fileStream = File.OpenRead(path))
             {
