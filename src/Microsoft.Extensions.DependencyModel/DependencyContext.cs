@@ -12,15 +12,22 @@ namespace Microsoft.Extensions.DependencyModel
     {
         private const string DepsExtension = ".deps";
 
-        public DependencyContext(Library[] compileLibraries, Library[] runtimeLibraries)
+        public DependencyContext(string target, string runtime, Library[] compileLibraries, Library[] runtimeLibraries)
         {
+            Target = target;
+            Runtime = runtime;
             CompileLibraries = compileLibraries;
             RuntimeLibraries = runtimeLibraries;
         }
 
+        public string Target { get; set; }
+
+        public string Runtime { get; set; }
+
         public IReadOnlyList<Library> CompileLibraries { get; }
 
         public IReadOnlyList<Library> RuntimeLibraries { get; }
+
 
         public static DependencyContext Load()
         {

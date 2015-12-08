@@ -10,26 +10,85 @@ using Newtonsoft.Json.Linq;
 
 namespace Microsoft.Extensions.DependencyModel.IO
 {
+    public class DependencyContextWriter
+    {
+        public void Write(DependencyContext context, Stream stream)
+        {
+            using (var writer = new StreamWriter(stream))
+            {
+                using (var jsonWriter = new JsonTextWriter(writer))
+                {
+                    Write(context).WriteTo(jsonWriter);
+                }
+            }
+        }
+
+        private JObject Write(DependencyContext context)
+        {
+            return new JObject(
+                new JProperty(DependencyContextStrings.TargetsPropertyName, WriteTargets(context)),
+                new JProperty(DependencyContextStrings.LibrariesPropertyName, WriteLibraries(context))
+                );
+
+        }
+
+        private JObject WriteTargets(DependencyContext context)
+        {
+            return new JObject(
+                        new JProperty(context.Target, WriteTarget(context.CompileLibraries, false)),
+                        new JProperty(context.Target + DependencyContextStrings.VersionSeperator + context.Runtime,
+                            WriteTarget(context.RuntimeLibraries, true))
+                        );
+        }
+
+        private JObject WriteTarget(IReadOnlyList<Library> libraries, bool runtime)
+        {
+            return new JObject(
+                libraries.Select(l => new JProperty(l.PackageName + DependencyContextStrings.VersionSeperator + l.Version, WriteTargetLibrary(l, runtime))));
+        }
+
+        private JObject WriteTargetLibrary(Library library, bool runtime)
+        {
+            return new JObject(
+                new JProperty(DependencyContextStrings.DependenciesPropertyName, WriteDependencies(library.Dependencies)),
+                new JProperty(runtime? DependencyContextStrings.RunTimeAssembliesKey : DependencyContextStrings.CompileTimeAssembliesKey,
+                    WriteAssemblies(library.Assemblies))
+                );
+        }
+
+        private JObject WriteAssemblies(IReadOnlyList<string> assemblies)
+        {
+            return new JObject(assemblies.Select(a => new JProperty(a, new JObject())));
+        }
+
+        private JObject WriteDependencies(IReadOnlyList<Dependency> dependencies)
+        {
+            return new JObject(
+                dependencies.Select(d => new JProperty(d.Name, d.Version))
+                );
+        }
+
+        private JObject WriteLibraries(DependencyContext context)
+        {
+            var allLibraries =
+                context.RuntimeLibraries.Concat(context.CompileLibraries)
+                    .GroupBy(l => l.PackageName + DependencyContextStrings.VersionSeperator + l.Version);
+
+            return new JObject(allLibraries.Select(l=> new JProperty(l.Key, WriteLibrary(l.First()))));
+        }
+
+        private JObject WriteLibrary(Library library)
+        {
+            return new JObject(
+                new JProperty(DependencyContextStrings.TypePropertyName, library.LibraryType),
+                new JProperty(DependencyContextStrings.ServiceablePropertyName, library.Serviceable),
+                new JProperty(DependencyContextStrings.Sha512PropertyName, library.Hash)
+                );
+        }
+    }
+
     public class DependencyContextReader
     {
-        private const char VersionSeperator = '/';
-
-        private const string CompileTimeAssembliesKey = "compile";
-
-        private const string RunTimeAssembliesKey = "runtime";
-
-        private const string LibrariesPropertyName = "libraries";
-
-        private const string TargetsPropertyName = "targets";
-
-        private const string DependenciesPropertyName = "dependencies";
-
-        private const string Sha512PropertyName = "sha512";
-
-        private const string TypePropertyName = "type";
-
-        private const string ServiceablePropertyName = "serviceable";
-
         public DependencyContext Read(Stream stream)
         {
             using (var streamReader = new StreamReader(stream))
@@ -42,38 +101,40 @@ namespace Microsoft.Extensions.DependencyModel.IO
             }
         }
 
-        private bool IsRuntimeTarget(string name) => name.Contains(VersionSeperator);
+        private bool IsRuntimeTarget(string name) => name.Contains(DependencyContextStrings.VersionSeperator);
 
         private DependencyContext Read(JObject root)
         {
-            var libraryStubs = ReadLibraryStubs((JObject) root[LibrariesPropertyName]);
-            var targetsObject = (IEnumerable<KeyValuePair<string, JToken>>) root[TargetsPropertyName];
+            var libraryStubs = ReadLibraryStubs((JObject) root[DependencyContextStrings.LibrariesPropertyName]);
+            var targetsObject = (IEnumerable<KeyValuePair<string, JToken>>) root[DependencyContextStrings.TargetsPropertyName];
 
-            var runtimeTargetObject = (JObject)targetsObject.First(t => IsRuntimeTarget(t.Key)).Value;
-            var compileTargetObject = (JObject)targetsObject.First(t => !IsRuntimeTarget(t.Key)).Value;
+            var runtimeTargetProperty = targetsObject.First(t => IsRuntimeTarget(t.Key));
+            var compileTargetProperty = targetsObject.First(t => !IsRuntimeTarget(t.Key));
 
             return new DependencyContext(
-                ReadLibraries(runtimeTargetObject, true, libraryStubs),
-                ReadLibraries(compileTargetObject, false, libraryStubs)
+                compileTargetProperty.Key,
+                runtimeTargetProperty.Key.Substring(compileTargetProperty.Key.Length + 1),
+                ReadLibraries((JObject)runtimeTargetProperty.Value, true, libraryStubs),
+                ReadLibraries((JObject)compileTargetProperty.Value, false, libraryStubs)
                 );
         }
 
-        private Library[] ReadLibraries(JObject librariesObject, bool runtime, Dictionary<string, LibraryStub> libraryStubs)
+        private Library[] ReadLibraries(JObject librariesObject, bool runtime, Dictionary<string, DependencyContextReader.LibraryStub> libraryStubs)
         {
             return librariesObject.Properties().Select(property => ReadLibrary(property, runtime, libraryStubs)).ToArray();
         }
 
-        private Library ReadLibrary(JProperty property, bool runtime, Dictionary<string, LibraryStub> libraryStubs)
+        private Library ReadLibrary(JProperty property, bool runtime, Dictionary<string, DependencyContextReader.LibraryStub> libraryStubs)
         {
             var nameWithVersion = property.Name;
-            LibraryStub stub;
+            DependencyContextReader.LibraryStub stub;
 
             if (!libraryStubs.TryGetValue(nameWithVersion, out stub))
             {
                 throw new InvalidOperationException($"Cannot find library information for {nameWithVersion}");
             }
 
-            var seperatorPosition = nameWithVersion.IndexOf(VersionSeperator);
+            var seperatorPosition = nameWithVersion.IndexOf(DependencyContextStrings.VersionSeperator);
 
             var name = nameWithVersion.Substring(0, seperatorPosition);
             var version = nameWithVersion.Substring(seperatorPosition + 1);
@@ -88,7 +149,7 @@ namespace Microsoft.Extensions.DependencyModel.IO
 
         private static string[] ReadAssemblies(JObject libraryObject, bool runtime)
         {
-            var assembliesObject = (JObject) libraryObject[runtime ? RunTimeAssembliesKey : CompileTimeAssembliesKey];
+            var assembliesObject = (JObject) libraryObject[runtime ? DependencyContextStrings.RunTimeAssembliesKey : DependencyContextStrings.CompileTimeAssembliesKey];
 
             if (assembliesObject == null)
             {
@@ -100,7 +161,7 @@ namespace Microsoft.Extensions.DependencyModel.IO
 
         private static Dependency[] ReadDependencies(JObject libraryObject)
         {
-            var dependenciesObject = ((JObject) libraryObject[DependenciesPropertyName]);
+            var dependenciesObject = ((JObject) libraryObject[DependencyContextStrings.DependenciesPropertyName]);
 
             if (dependenciesObject == null)
             {
@@ -110,18 +171,18 @@ namespace Microsoft.Extensions.DependencyModel.IO
             return dependenciesObject.Properties().Select(p => new Dependency(p.Name, (string) p.Value)).ToArray();
         }
 
-        private Dictionary<string, LibraryStub> ReadLibraryStubs(JObject librariesObject)
+        private Dictionary<string, DependencyContextReader.LibraryStub> ReadLibraryStubs(JObject librariesObject)
         {
-            var libraries = new Dictionary<string, LibraryStub>();
+            var libraries = new Dictionary<string, DependencyContextReader.LibraryStub>();
             foreach (var libraryProperty in librariesObject)
             {
                 var value = (JObject) libraryProperty.Value;
-                var stub = new LibraryStub
+                var stub = new DependencyContextReader.LibraryStub
                 {
                     Name = libraryProperty.Key,
-                    Hash = value[Sha512PropertyName]?.Value<string>(),
-                    Type = value[TypePropertyName].Value<string>(),
-                    Serviceable = value[ServiceablePropertyName]?.Value<bool>() == true
+                    Hash = value[DependencyContextStrings.Sha512PropertyName]?.Value<string>(),
+                    Type = value[DependencyContextStrings.TypePropertyName].Value<string>(),
+                    Serviceable = value[DependencyContextStrings.ServiceablePropertyName]?.Value<bool>() == true
                 };
                 libraries.Add(stub.Name, stub);
             }

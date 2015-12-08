@@ -14,6 +14,8 @@ namespace Microsoft.Extensions.DependencyModel
         {
             var c =  new DependencyContextReader().Read(File.OpenRead("d:\\dotnet-compile.deps.json"));
             Console.WriteLine(JsonConvert.SerializeObject(c,Formatting.Indented));
+
+            new DependencyContextWriter().Write(c, Console.OpenStandardOutput());
         }
     }
 }
