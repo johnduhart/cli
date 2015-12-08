@@ -15,6 +15,8 @@ using Microsoft.DotNet.ProjectModel;
 using Microsoft.DotNet.ProjectModel.Compilation;
 using NuGet.Frameworks;
 using Microsoft.DotNet.ProjectModel.Utilities;
+using Microsoft.Extensions.DependencyModel;
+using Microsoft.Extensions.DependencyModel.IO;
 
 namespace Microsoft.DotNet.Tools.Compiler
 {
@@ -534,6 +536,10 @@ namespace Microsoft.DotNet.Tools.Compiler
             }
 
             File.WriteAllLines(Path.Combine(outputPath, runtimeContext.ProjectFile.Name + ".deps"), lines);
+
+            var dependencyContext = ProjectContextConverter.ToDependencyContext(
+                exporter, runtimeContext.TargetFramework.DotNetFrameworkName, runtimeContext.RuntimeIdentifier);
+            new DependencyContextWriter().Write(dependencyContext, File.Create(Path.Combine(outputPath, runtimeContext.ProjectFile.Name + ".deps.js")));
 
             // Copy the host in
             CopyHost(Path.Combine(outputPath, runtimeContext.ProjectFile.Name + Constants.ExeSuffix));
