@@ -8,7 +8,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Microsoft.Extensions.DependencyModel.IO
+namespace Microsoft.Extensions.DependencyModel
 {
     public class DependencyContextReader
     {

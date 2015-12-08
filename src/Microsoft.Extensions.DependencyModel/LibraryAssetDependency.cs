@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Microsoft.Extensions.DependencyModel
 {
-    public class Library
+    public struct Library
     {
         public Library(string libraryType, string packageName, string version, string hash, string[] assemblies, Dependency[] dependencies, bool serviceable)
         {

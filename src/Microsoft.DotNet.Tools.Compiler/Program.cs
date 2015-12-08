@@ -16,7 +16,6 @@ using Microsoft.DotNet.ProjectModel.Compilation;
 using NuGet.Frameworks;
 using Microsoft.DotNet.ProjectModel.Utilities;
 using Microsoft.Extensions.DependencyModel;
-using Microsoft.Extensions.DependencyModel.IO;
 
 namespace Microsoft.DotNet.Tools.Compiler
 {

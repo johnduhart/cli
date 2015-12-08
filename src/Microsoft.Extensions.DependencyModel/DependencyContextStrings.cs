@@ -1,6 +1,6 @@
-namespace Microsoft.Extensions.DependencyModel.IO
+namespace Microsoft.Extensions.DependencyModel
 {
-    public class DependencyContextStrings
+    internal class DependencyContextStrings
     {
         internal const char VersionSeperator = '/';
 
