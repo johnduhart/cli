@@ -31,8 +31,8 @@ namespace Microsoft.Extensions.DependencyModel
             var libraryStubs = ReadLibraryStubs((JObject) root[DependencyContextStrings.LibrariesPropertyName]);
             var targetsObject = (IEnumerable<KeyValuePair<string, JToken>>) root[DependencyContextStrings.TargetsPropertyName];
 
-            var runtimeTargetProperty = targetsObject.First(t => IsRuntimeTarget(t.Key));
-            var compileTargetProperty = targetsObject.First(t => !IsRuntimeTarget(t.Key));
+            var runtimeTargetProperty = targetsObject.First(target => IsRuntimeTarget(target.Key));
+            var compileTargetProperty = targetsObject.First(target => !IsRuntimeTarget(target.Key));
 
             return new DependencyContext(
                 compileTargetProperty.Key,
@@ -79,7 +79,7 @@ namespace Microsoft.Extensions.DependencyModel
                 return Array.Empty<string>();
             }
 
-            return assembliesObject.Properties().Select(p => p.Name).ToArray();
+            return assembliesObject.Properties().Select(property => property.Name).ToArray();
         }
 
         private static Dependency[] ReadDependencies(JObject libraryObject)
@@ -91,16 +91,17 @@ namespace Microsoft.Extensions.DependencyModel
                 return Array.Empty<Dependency>();
             }
 
-            return dependenciesObject.Properties().Select(p => new Dependency(p.Name, (string) p.Value)).ToArray();
+            return dependenciesObject.Properties()
+                .Select(property => new Dependency(property.Name, (string) property.Value)).ToArray();
         }
 
-        private Dictionary<string, DependencyContextReader.LibraryStub> ReadLibraryStubs(JObject librariesObject)
+        private Dictionary<string, LibraryStub> ReadLibraryStubs(JObject librariesObject)
         {
-            var libraries = new Dictionary<string, DependencyContextReader.LibraryStub>();
+            var libraries = new Dictionary<string, LibraryStub>();
             foreach (var libraryProperty in librariesObject)
             {
                 var value = (JObject) libraryProperty.Value;
-                var stub = new DependencyContextReader.LibraryStub
+                var stub = new LibraryStub
                 {
                     Name = libraryProperty.Key,
                     Hash = value[DependencyContextStrings.Sha512PropertyName]?.Value<string>(),

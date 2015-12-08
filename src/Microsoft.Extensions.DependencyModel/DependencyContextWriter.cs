@@ -40,27 +40,28 @@ namespace Microsoft.Extensions.DependencyModel
         private JObject WriteTarget(IReadOnlyList<Library> libraries, bool runtime)
         {
             return new JObject(
-                libraries.Select(l => new JProperty(l.PackageName + DependencyContextStrings.VersionSeperator + l.Version, WriteTargetLibrary(l, runtime))));
+                libraries.Select(library =>
+                    new JProperty(library.PackageName + DependencyContextStrings.VersionSeperator + library.Version, WriteTargetLibrary(library, runtime))));
         }
 
         private JObject WriteTargetLibrary(Library library, bool runtime)
         {
             return new JObject(
                 new JProperty(DependencyContextStrings.DependenciesPropertyName, WriteDependencies(library.Dependencies)),
-                new JProperty(runtime? DependencyContextStrings.RunTimeAssembliesKey : DependencyContextStrings.CompileTimeAssembliesKey,
+                new JProperty(runtime ? DependencyContextStrings.RunTimeAssembliesKey : DependencyContextStrings.CompileTimeAssembliesKey,
                     WriteAssemblies(library.Assemblies))
                 );
         }
 
         private JObject WriteAssemblies(IReadOnlyList<string> assemblies)
         {
-            return new JObject(assemblies.Select(a => new JProperty(a, new JObject())));
+            return new JObject(assemblies.Select(assembly => new JProperty(assembly, new JObject())));
         }
 
         private JObject WriteDependencies(IReadOnlyList<Dependency> dependencies)
         {
             return new JObject(
-                dependencies.Select(d => new JProperty(d.Name, d.Version))
+                dependencies.Select(dependency => new JProperty(dependency.Name, dependency.Version))
                 );
         }
 
@@ -68,9 +69,9 @@ namespace Microsoft.Extensions.DependencyModel
         {
             var allLibraries =
                 context.RuntimeLibraries.Concat(context.CompileLibraries)
-                    .GroupBy(l => l.PackageName + DependencyContextStrings.VersionSeperator + l.Version);
+                    .GroupBy(library => library.PackageName + DependencyContextStrings.VersionSeperator + library.Version);
 
-            return new JObject(allLibraries.Select(l=> new JProperty(l.Key, WriteLibrary(l.First()))));
+            return new JObject(allLibraries.Select(libraries=> new JProperty(libraries.Key, WriteLibrary(libraries.First()))));
         }
 
         private JObject WriteLibrary(Library library)
