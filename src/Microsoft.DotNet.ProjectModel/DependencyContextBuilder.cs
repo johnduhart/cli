@@ -14,19 +14,19 @@ namespace Microsoft.Extensions.DependencyModel
             var dependencies = libraryExporter.GetDependencies();
 
             return new DependencyContext(target, runtime,
-                GetLibraries(dependencies, e => e.CompilationAssemblies),
-                GetLibraries(dependencies, e => e.RuntimeAssemblies));
+                GetLibraries(dependencies, export => export.CompilationAssemblies),
+                GetLibraries(dependencies, export => export.RuntimeAssemblies));
         }
 
         private static Library[] GetLibraries(IEnumerable<LibraryExport> dependencies, Func<LibraryExport, IEnumerable<LibraryAsset>> assemblySelector)
         {
-            return dependencies.Select(l => new Library(
-                l.Library.Identity.Type.ToString().ToLowerInvariant(),
-                l.Library.Identity.Name,
-                l.Library.Identity.Version.ToString(),
-                l.Library.Hash,
-                assemblySelector(l).Select(a => a.RelativePath).ToArray(),
-                l.Library.Dependencies.Select(d => new Dependency(d.Name, "???")).ToArray(),
+            return dependencies.Select(export => new Library(
+                export.Library.Identity.Type.ToString().ToLowerInvariant(),
+                export.Library.Identity.Name,
+                export.Library.Identity.Version.ToString(),
+                export.Library.Hash,
+                assemblySelector(export).Select(a => a.RelativePath).ToArray(),
+                export.Library.Dependencies.Select(d => new Dependency(d.Name, "???")).ToArray(),
                 false // ???
                 )).ToArray();
         }
