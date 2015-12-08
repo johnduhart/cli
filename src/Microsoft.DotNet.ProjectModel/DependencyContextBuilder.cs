@@ -25,8 +25,8 @@ namespace Microsoft.Extensions.DependencyModel
                 export.Library.Identity.Name,
                 export.Library.Identity.Version.ToString(),
                 export.Library.Hash,
-                assemblySelector(export).Select(a => a.RelativePath).ToArray(),
-                export.Library.Dependencies.Select(d => new Dependency(d.Name, "???")).ToArray(),
+                assemblySelector(export).Select(libraryAsset => libraryAsset.RelativePath).ToArray(),
+                export.Library.Dependencies.Select(libraryRange => new Dependency(libraryRange.Name, "???")).ToArray(),
                 false // ???
                 )).ToArray();
         }
