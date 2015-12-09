@@ -10,6 +10,7 @@ namespace Microsoft.Extensions.DependencyModel
     public class DependencyContext
     {
         private const string DepsExtension = ".deps";
+        private const string DepsResourceName = "DependencyContext.json";
 
         public DependencyContext(string target, string runtime, Library[] compileLibraries, Library[] runtimeLibraries)
         {
@@ -30,12 +31,18 @@ namespace Microsoft.Extensions.DependencyModel
 
         public static DependencyContext Load()
         {
-            Assembly entryAssembly = (Assembly)typeof(Assembly).GetTypeInfo().GetDeclaredMethod("GetEntryAssembly").Invoke(null, null);
+            var entryAssembly = (Assembly)typeof(Assembly).GetTypeInfo().GetDeclaredMethod("GetEntryAssembly").Invoke(null, null);
+            var stream = entryAssembly.GetManifestResourceStream(DepsResourceName);
 
-            var path = Path.Combine(entryAssembly.Location, Path.GetFileNameWithoutExtension(entryAssembly.Location) + DepsExtension);
-            using (var fileStream = File.OpenRead(path))
+            if (stream == null)
             {
-                return Load(fileStream);
+                var path = Path.Combine(entryAssembly.Location, Path.GetFileNameWithoutExtension(entryAssembly.Location) + DepsExtension);
+                stream = File.OpenRead(path);
+            }
+
+            using (stream)
+            {
+                return Load(stream);
             }
         }
 

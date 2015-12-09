@@ -10,7 +10,7 @@ namespace Microsoft.Extensions.DependencyModel
 {
     public static class DependencyContextBuilder
     {
-        public static  DependencyContext FromLibraryExporter(LibraryExporter libraryExporter, string target, string runtime)
+        public static DependencyContext FromLibraryExporter(LibraryExporter libraryExporter, string target, string runtime)
         {
             var dependencies = libraryExporter.GetAllExports();
 

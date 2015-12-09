@@ -6,8 +6,7 @@
     "url": "git://github.com/dotnet/cli"
   },
   "compilationOptions": {
-    "warningsAsErrors": true,
-    "emitEntryPoint": true
+    "warningsAsErrors": true
   },
   "dependencies": {
     "Newtonsoft.Json": "7.0.1"
@@ -15,14 +14,10 @@
   "frameworks": {
     "dnxcore50": {
       "dependencies": {
-
-        "System.Console": "4.0.0-beta-23504",
         "System.Collections": "4.0.11-beta-23504",
         "System.Linq": "4.0.1-beta-23504",
-        "System.Diagnostics.Process": "4.1.0-beta-23504",
         "System.IO": "4.0.10-beta-23504",
         "System.IO.FileSystem": "4.0.1-beta-23504",
-
         "System.Reflection": "4.1.0-beta-23504",
         "System.Runtime": "4.0.21-beta-23504",
         "System.Runtime.Extensions": "4.0.11-beta-23504",
