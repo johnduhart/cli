@@ -36,7 +36,7 @@ namespace Microsoft.DotNet.ProjectModel.Server
         public static int Main(string[] args)
         {
             var app = new CommandLineApplication();
-            app.Name = "dotnet-designtimeserver";
+            app.Name = "dotnet-projectmodel-server";
             app.FullName = ".NET Design Time Server";
             app.Description = ".NET Design Time Server";
             app.HelpOption("-?|-h|--help");
