@@ -275,7 +275,7 @@ namespace Microsoft.DotNet.ProjectModel.Server.Tests
                 client.DrainMessage(21);
 
                 // the context id here doesn't matter, this request is processed before it reaches
-                // ApplicationContext
+                // ProjectContextManager
                 client.SendPayLoad(1, DthMessageTypes.EnumerateProjectContexts, new { Version = 1 });
 
                 var message = client.DrainTillFirst(DthMessageTypes.ProjectContexts);
