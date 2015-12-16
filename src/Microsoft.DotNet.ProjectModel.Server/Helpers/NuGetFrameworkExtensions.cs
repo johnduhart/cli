@@ -22,11 +22,5 @@ namespace Microsoft.DotNet.ProjectModel.Server.Helpers
                 RedistListPath = resolver.GetFrameworkRedistListPath(framework)
             };
         }
-
-        public static IEnumerable<FrameworkData> ToPayloads(this IEnumerable<NuGetFramework> frameworks,
-                                                            FrameworkReferenceResolver resolver)
-        {
-            return frameworks.Select(f => f.ToPayload(resolver));
-        }
     }
 }

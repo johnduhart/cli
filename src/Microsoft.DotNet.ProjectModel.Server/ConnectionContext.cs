@@ -22,7 +22,6 @@ namespace Microsoft.DotNet.ProjectModel.Server
         public ConnectionContext(string hostName,
                                  Socket acceptedSocket,
                                  ProtocolManager protocolManager,
-                                 FrameworkReferenceResolver frameworkReferenceResolver,
                                  WorkspaceContext workspaceContext,
                                  IDictionary<int, ProjectContextManager> projectContextManagers,
                                  ILoggerFactory loggerFactory)
@@ -53,8 +52,7 @@ namespace Microsoft.DotNet.ProjectModel.Server
                         keeper = new ProjectContextManager(message.ContextId,
                                                            loggerFactory,
                                                            workspaceContext,
-                                                           protocolManager,
-                                                           frameworkReferenceResolver);
+                                                           protocolManager);
 
                         _projectContextManagers[message.ContextId] = keeper;
                     }

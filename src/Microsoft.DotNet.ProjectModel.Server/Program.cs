@@ -15,7 +15,6 @@ namespace Microsoft.DotNet.ProjectModel.Server
     {
         private readonly Dictionary<int, ProjectContextManager> _projectContextManagers;
         private readonly WorkspaceContext _workspaceContext;
-        private readonly FrameworkReferenceResolver _frameworkReferenceResolver;
         private readonly ProtocolManager _protocolManager;
         private readonly ILoggerFactory _loggerFactory;
         private readonly string _hostName;
@@ -29,7 +28,6 @@ namespace Microsoft.DotNet.ProjectModel.Server
             _loggerFactory = loggerFactory;
             _protocolManager = new ProtocolManager(maxVersion: 4, loggerFactory: _loggerFactory);
             _workspaceContext = WorkspaceContext.Create();
-            _frameworkReferenceResolver = new FrameworkReferenceResolver(ProjectContextBuilder.GetDefaultReferenceAssembliesPath());
             _projectContextManagers = new Dictionary<int, ProjectContextManager>();
         }
 
@@ -100,7 +98,6 @@ namespace Microsoft.DotNet.ProjectModel.Server
                 var connection = new ConnectionContext(_hostName,
                                                        acceptSocket,
                                                        _protocolManager,
-                                                       _frameworkReferenceResolver,
                                                        _workspaceContext,
                                                        _projectContextManagers,
                                                        _loggerFactory);

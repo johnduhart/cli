@@ -39,20 +39,17 @@ namespace Microsoft.DotNet.ProjectModel.Server
         private Snapshot _remote = new Snapshot();
         private readonly WorkspaceContext _workspaceContext;
         private int? _contextProtocolVersion;
-        private FrameworkReferenceResolver _frameworkReferenceResolver;
 
         public ProjectContextManager(int contextId,
                                      ILoggerFactory loggerFactory,
                                      WorkspaceContext workspaceContext,
-                                     ProtocolManager protocolManager,
-                                     FrameworkReferenceResolver resolver)
+                                     ProtocolManager protocolManager)
         {
             Id = contextId;
             _log = loggerFactory.CreateLogger<ProjectContextManager>();
             _workspaceContext = workspaceContext;
             _projectStateResolver = new ProjectStateResolver(_workspaceContext);
             _protocolManager = protocolManager;
-            _frameworkReferenceResolver = resolver;
         }
 
         public int Id { get; }
@@ -255,14 +252,16 @@ namespace Microsoft.DotNet.ProjectModel.Server
             }
 
 
+            var frameworkReferenceResolver = FrameworkReferenceResolver.Default;
+
             _local = new Snapshot();
             _local.Project = state.Project;
-            _local.ProjectInformation = ProjectInformation.FromProjectState(state, _frameworkReferenceResolver);
+            _local.ProjectInformation = ProjectInformation.FromProjectState(state, frameworkReferenceResolver);
             _local.ProjectDiagnostics = new DiagnosticsListMessage(state.Diagnostics);
 
             foreach (var project in state.Projects)
             {
-                var targetFrameworkData = project.Framework.ToPayload(_frameworkReferenceResolver);
+                var targetFrameworkData = project.Framework.ToPayload(frameworkReferenceResolver);
                 var projectWorkd = new ProjectWorld
                 {
                     TargetFramework = project.Framework,
