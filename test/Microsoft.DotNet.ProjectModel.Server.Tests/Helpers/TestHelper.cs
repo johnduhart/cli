@@ -11,8 +11,20 @@ namespace Microsoft.DotNet.ProjectModel.Server.Tests.Helpers
         public TestHelper()
         {
             LoggerFactory = new LoggerFactory();
-            LoggerFactory.AddConsole(LogLevel.Warning);
-            //LoggerFactory.AddConsole(LogLevel.Trace);
+            
+            var testVerbose = Environment.GetEnvironmentVariable("DOTNET_TEST_VERBOSE");
+            if (testVerbose == "2")
+            {
+                LoggerFactory.AddConsole(LogLevel.Trace);
+            }
+            else if (testVerbose == "1")
+            {
+                LoggerFactory.AddConsole(LogLevel.Information);
+            }
+            else
+            {
+                LoggerFactory.AddConsole(LogLevel.Warning);
+            }
 
             _tempPath = CreateTempFolder();
             var dthTestProjectsFolder = Path.Combine(FindRoot(), "test", "DthTestProjects");
