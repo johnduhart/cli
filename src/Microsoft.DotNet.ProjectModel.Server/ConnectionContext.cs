@@ -17,18 +17,18 @@ namespace Microsoft.DotNet.ProjectModel.Server
     {
         private readonly string _hostName;
         private readonly ProcessingQueue _queue;
-        private readonly IDictionary<int, ApplicationContext> _applicationContexts;
+        private readonly IDictionary<int, ProjectContextManager> _projectContextManagers;
 
         public ConnectionContext(string hostName,
                                  Socket acceptedSocket,
                                  ProtocolManager protocolManager,
                                  FrameworkReferenceResolver frameworkReferenceResolver,
                                  WorkspaceContext workspaceContext,
-                                 IDictionary<int, ApplicationContext> keepers,
+                                 IDictionary<int, ProjectContextManager> projectContextManagers,
                                  ILoggerFactory loggerFactory)
         {
             _hostName = hostName;
-            _applicationContexts = keepers;
+            _projectContextManagers = projectContextManagers;
 
             _queue = new ProcessingQueue(new NetworkStream(acceptedSocket), loggerFactory);
             _queue.OnReceive += message =>
@@ -47,16 +47,16 @@ namespace Microsoft.DotNet.ProjectModel.Server
                 else
                 {
                     message.Sender = this;
-                    ApplicationContext keeper;
-                    if (!_applicationContexts.TryGetValue(message.ContextId, out keeper))
+                    ProjectContextManager keeper;
+                    if (!_projectContextManagers.TryGetValue(message.ContextId, out keeper))
                     {
-                        keeper = new ApplicationContext(message.ContextId,
-                                                        loggerFactory,
-                                                        workspaceContext,
-                                                        protocolManager,
-                                                        frameworkReferenceResolver);
+                        keeper = new ProjectContextManager(message.ContextId,
+                                                           loggerFactory,
+                                                           workspaceContext,
+                                                           protocolManager,
+                                                           frameworkReferenceResolver);
 
-                        _applicationContexts[message.ContextId] = keeper;
+                        _projectContextManagers[message.ContextId] = keeper;
                     }
 
                     keeper.OnReceive(message);
@@ -87,7 +87,7 @@ namespace Microsoft.DotNet.ProjectModel.Server
                 var response = new
                 {
                     MessageType = MessageTypes.ProjectContexts,
-                    Projects = _applicationContexts.ToDictionary(
+                    Projects = _projectContextManagers.ToDictionary(
                         pair => pair.Value.ProjectPath,
                         pair => pair.Key)
                 };

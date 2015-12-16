@@ -17,7 +17,7 @@ using NuGet.Frameworks;
 
 namespace Microsoft.DotNet.ProjectModel.Server
 {
-    public class ApplicationContext
+    public class ProjectContextManager
     {
         private readonly ILogger _log;
 
@@ -41,14 +41,14 @@ namespace Microsoft.DotNet.ProjectModel.Server
         private int? _contextProtocolVersion;
         private FrameworkReferenceResolver _frameworkReferenceResolver;
 
-        public ApplicationContext(int contextId,
-                                  ILoggerFactory loggerFactory,
-                                  WorkspaceContext workspaceContext,
-                                  ProtocolManager protocolManager,
-                                  FrameworkReferenceResolver resolver)
+        public ProjectContextManager(int contextId,
+                                     ILoggerFactory loggerFactory,
+                                     WorkspaceContext workspaceContext,
+                                     ProtocolManager protocolManager,
+                                     FrameworkReferenceResolver resolver)
         {
             Id = contextId;
-            _log = loggerFactory.CreateLogger<ApplicationContext>();
+            _log = loggerFactory.CreateLogger<ProjectContextManager>();
             _workspaceContext = workspaceContext;
             _projectStateResolver = new ProjectStateResolver(_workspaceContext);
             _protocolManager = protocolManager;
@@ -81,7 +81,7 @@ namespace Microsoft.DotNet.ProjectModel.Server
                 _inbox.Enqueue(message);
             }
 
-            ThreadPool.QueueUserWorkItem(state => ((ApplicationContext)state).ProcessLoop(), this);
+            ThreadPool.QueueUserWorkItem(state => ((ProjectContextManager)state).ProcessLoop(), this);
         }
 
         private void ProcessLoop()

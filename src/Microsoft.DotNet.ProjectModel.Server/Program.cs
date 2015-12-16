@@ -13,7 +13,7 @@ namespace Microsoft.DotNet.ProjectModel.Server
 {
     public class Program
     {
-        private readonly Dictionary<int, ApplicationContext> _keepers = new Dictionary<int, ApplicationContext>();
+        private readonly Dictionary<int, ProjectContextManager> _projectContextManagers;
         private readonly WorkspaceContext _workspaceContext;
         private readonly FrameworkReferenceResolver _frameworkReferenceResolver;
         private readonly ProtocolManager _protocolManager;
@@ -30,6 +30,7 @@ namespace Microsoft.DotNet.ProjectModel.Server
             _protocolManager = new ProtocolManager(maxVersion: 4, loggerFactory: _loggerFactory);
             _workspaceContext = WorkspaceContext.Create();
             _frameworkReferenceResolver = new FrameworkReferenceResolver(ProjectContextBuilder.GetDefaultReferenceAssembliesPath());
+            _projectContextManagers = new Dictionary<int, ProjectContextManager>();
         }
 
         public static int Main(string[] args)
@@ -112,7 +113,7 @@ namespace Microsoft.DotNet.ProjectModel.Server
                                                        _protocolManager,
                                                        _frameworkReferenceResolver,
                                                        _workspaceContext,
-                                                       _keepers,
+                                                       _projectContextManagers,
                                                        _loggerFactory);
 
                 connection.QueueStart();
