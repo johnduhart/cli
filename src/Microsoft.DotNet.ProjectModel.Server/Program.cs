@@ -37,55 +37,44 @@ namespace Microsoft.DotNet.ProjectModel.Server
         {
             var app = new CommandLineApplication();
             app.Name = "dotnet-projectmodel-server";
+            app.Description = ".NET Project Model Server";
             app.FullName = ".NET Design Time Server";
             app.Description = ".NET Design Time Server";
             app.HelpOption("-?|-h|--help");
 
+            var verbose = app.Option("--verbose", "Verbose ouput", CommandOptionType.NoValue);
+            var hostpid = app.Option("--hostPid", "the process id of the host", CommandOptionType.SingleValue);
+            var hostname = app.Option("--hostName", "the process id of the host", CommandOptionType.SingleValue);
+            var port = app.Option("--port", "the communication port", CommandOptionType.SingleValue);
+
             app.OnExecute(() =>
             {
-                app.ShowHelp();
-                return 0;
-            });
+                var loggerFactory = new LoggerFactory();
+                loggerFactory.AddConsole(verbose.HasValue() ? LogLevel.Debug : LogLevel.Information);
 
-            app.Command("run", cla =>
-            {
-                cla.Description = "Start .NET Design Time Server";
-                cla.HelpOption("-?|-h|--help");
+                var logger = loggerFactory.CreateLogger<Program>();
 
-                var verbose = cla.Option("--verbose", "Verbose ouput", CommandOptionType.NoValue);
-                var hostpid = cla.Option("--hostPid", "the process id of the host", CommandOptionType.SingleValue);
-                var hostname = cla.Option("--hostName", "the process id of the host", CommandOptionType.SingleValue);
-                var port = cla.Option("--port", "the communication port", CommandOptionType.SingleValue);
-
-                cla.OnExecute(() =>
+                if (!MonitorHostProcess(hostpid, logger))
                 {
-                    var loggerFactory = new LoggerFactory();
-                    loggerFactory.AddConsole(verbose.HasValue() ? LogLevel.Debug : LogLevel.Information);
+                    return 1;
+                }
 
-                    var logger = loggerFactory.CreateLogger<Program>();
+                var intPort = CheckPort(port, logger);
+                if (intPort == -1)
+                {
+                    return 1;
+                }
 
-                    if (!MonitorHostProcess(hostpid, logger))
-                    {
-                        return 1;
-                    }
+                if (!hostname.HasValue())
+                {
+                    logger.LogError($"Option \"{hostname.LongName}\" is missing.");
+                    return 1;
+                }
 
-                    var intPort = CheckPort(port, logger);
-                    if (intPort == -1)
-                    {
-                        return 1;
-                    }
+                var program = new Program(intPort, hostname.Value(), loggerFactory);
+                program.OpenChannel();
 
-                    if (!hostname.HasValue())
-                    {
-                        logger.LogError($"Option \"{hostname.LongName}\" is missing.");
-                        return 1;
-                    }
-
-                    var program = new Program(intPort, hostname.Value(), loggerFactory);
-                    program.OpenChannel();
-
-                    return 0;
-                });
+                return 0;
             });
 
             return app.Execute(args);
